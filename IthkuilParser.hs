@@ -132,9 +132,9 @@ softCluster =
 
 syllabicCluster :: Parser String
 syllabicCluster = do
-        c <- oneOf consonants
+        c <- consonant
         cs <- char '-' >> consonantCluster
-        return $ c : '-' : cs
+        return $ c ++ '-' : cs
     where consonants = "qwrtypsdfghjklzxcvbnm"
 
 spot7Cluster :: Parser String
@@ -143,12 +143,22 @@ spot7Cluster = do
     consonantCluster
 
 consonantCluster :: Parser String
-consonantCluster = many1 $ oneOf consonants where
-    consonants = "qwrtypsdfghjklzxcvbnm"
+consonantCluster = liftM (foldl (++) "") (many1 consonant)
+-- combine all the consonant strings into one long string
 
 vowelCluster :: Parser String
 vowelCluster = many1 $ oneOf vowels where
     vowels = "aeiou"
+
+consonant :: Parser String
+consonant = do
+    first <- oneOf "botdkgqcčżfvţszšžçxhļmnrňlwyř"
+    if first `elem` "ptkqcč" 
+       then do aspiration <- option "" $ try (string "ʰ") <|> try (string "'")
+               return $ first : aspiration
+       else if first == 'd' then do maybeH <- option "" $ try (string "h")
+                                    return $ first : maybeH
+                            else do return [first]
 
 pw :: String -> Either ParseError Word
 pw = parse word ""
