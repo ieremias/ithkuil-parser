@@ -148,7 +148,7 @@ consonantCluster = liftM (foldl (++) "") (many1 consonant)
 
 vowelCluster :: Parser String
 vowelCluster = many1 $ oneOf vowels where
-    vowels = "aeiou"
+    vowels = "aáàâeéèêëiíìîoóòôöuúùûü"
 
 consonant :: Parser String
 consonant = do
