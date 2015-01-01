@@ -62,8 +62,8 @@ parts1_6 = do
 
 parts7_10 :: Parser (String, String, String, String)
 parts7_10 = do
-    part7 <- spot7Cluster 
-    part8 <- vowelCluster
+    part7 <- rootCluster 
+    part8 <- caseVowel 
     part9 <- option "" spot9
     part10 <- consonantCluster
     return (part7, part8, part9, part10)
@@ -82,7 +82,7 @@ spots123 = do
 
 spots12 :: Parser (String, String)
 spots12 = do
-    part1 <- option "" spot7Cluster
+    part1 <- option "" rootCluster
     part2 <- vowelCluster
     return (part1, part2)
 
@@ -107,7 +107,6 @@ spots12_13 = do
 ciCluster :: Parser String
 ciCluster = 
     choice $ (try.string) `map` ["hw", "h", "w", "y"]
-
 
 spot3Cluster :: Parser String
 spot3Cluster = try softCluster <|> syllabicCluster
@@ -135,10 +134,9 @@ syllabicCluster = do
         c <- consonant
         cs <- char '-' >> consonantCluster
         return $ c ++ '-' : cs
-    where consonants = "qwrtypsdfghjklzxcvbnm"
 
-spot7Cluster :: Parser String
-spot7Cluster = do
+rootCluster :: Parser String
+rootCluster = do
     notFollowedBy softCluster 
     consonantCluster
 
@@ -150,9 +148,15 @@ vowelCluster :: Parser String
 vowelCluster = many1 $ oneOf vowels where
     vowels = "aáàâeéèêëiíìîoóòôöuúùûü"
 
+caseVowel :: Parser String
+caseVowel = do
+    vowels1 <- vowelCluster
+    vowels2 <- option "" (char '\'' >> vowelCluster)
+    return $ vowels1 ++ vowels2
+
 consonant :: Parser String
 consonant = do
-    first <- oneOf "botdkgqcčżfvţszšžçxhļmnrňlwyř"
+    first <- oneOf "pbtdkgqcčżjfvţszšžçxhļmnrňlwyř"
     if first `elem` "ptkqcč" 
        then do aspiration <- option "" $ try (string "ʰ") <|> try (string "'")
                return $ first : aspiration
