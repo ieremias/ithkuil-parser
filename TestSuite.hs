@@ -21,9 +21,10 @@ main = do mapM_ putStrLn results
             tests = testParse `map` 
                 [
                   "phal"
+                , "phe'l"
                 , "eqoec"
                 , "uaklarsla"
-                , "uiphawatluxen"
+                , "uiphawatluxe'n"
                 , "hremsoqaitsurkoi"
                 , "qhul-lyai'sviksei'arpipto'ks"
                 ]
