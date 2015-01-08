@@ -114,7 +114,7 @@ spot3Cluster = try softCluster <|> syllabicCluster
 softCluster :: Parser String
 softCluster =
     choice $ (try.charThen) `map` [
-            ('h', "whmn", True)
+            ('h', "rwhmn", True)
           , ('y', "", True)
           , ('w', "", True)
           , ('l', "wy", False)
@@ -127,7 +127,7 @@ softCluster =
                    then option [] (stringOneOf cs)
                    else stringOneOf cs
                 return $ c : rest
-            stringOneOf cs = (\x -> [x]) `liftM` oneOf cs
+            stringOneOf cs = return `liftM` oneOf cs
 
 syllabicCluster :: Parser String
 syllabicCluster = do
@@ -151,8 +151,12 @@ vowelCluster = many1 $ oneOf vowels where
 caseVowel :: Parser String
 caseVowel = do
     vowels1 <- vowelCluster
-    vowels2 <- option "" (char '\'' >> vowelCluster)
-    return $ vowels1 ++ vowels2
+    (apostrophe, vowels2) <- 
+      option ("", "") (char '\'' >>= \x -> 
+        option "" vowelCluster >>= \y ->
+          return ([x], y))
+
+    return $ vowels1 ++ apostrophe ++ vowels2
 
 consonant :: Parser String
 consonant = do
